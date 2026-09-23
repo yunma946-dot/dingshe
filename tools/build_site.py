@@ -500,7 +500,7 @@ def build_home() -> str:
         f'<article class="process-panel{" active" if index == 1 else ""}" role="tabpanel" id="process-panel-{index}" aria-labelledby="process-tab-{index}" data-process-panel="{index}"{" hidden" if index != 1 else ""}><span>STEP {index:02d}</span><h3>{esc(label)}</h3><p>{esc(text)}</p></article>'
         for index, (label, text) in enumerate(process_items, start=1)
     )
-    process_section = f'''<section class="home-process"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(home.get('process_kicker', 'CONSULTATION PROCESS'))}</span><h2>{esc(home.get('process_title', '预约咨询流程'))}</h2></div><p>按步骤了解咨询方式，具体信息请以官方客服的最新确认为准。</p></div><div class="process-shell" data-process-tabs><div class="process-tabs" role="tablist" aria-label="预约咨询流程">{process_tabs}</div><div class="process-panels">{process_panels}</div></div></div></section>'''
+    process_section = f'''<section class="home-process"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(home.get('process_kicker', 'CONSULTATION PROCESS'))}</span><h2>{esc(home.get('process_title', '预约咨询流程'))}</h2></div></div><div class="process-shell" data-process-tabs><div class="process-tabs" role="tablist" aria-label="预约咨询流程">{process_tabs}</div><div class="process-panels">{process_panels}</div></div></div></section>'''
     try:
         random_count = int(home.get("random_count", 8))
     except (TypeError, ValueError):
