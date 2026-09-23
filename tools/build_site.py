@@ -686,8 +686,9 @@ def build_profile(profile: dict) -> str:
             "thumbnailUrl": poster_url,
             "contentUrl": f"{DOMAIN}/{video_source}",
         }
-        if profile.get("video_upload_date"):
-            video_schema["uploadDate"] = profile["video_upload_date"]
+        video_upload_date = profile.get("video_upload_date") or profile.get("last_updated") or profile.get("first_published")
+        if video_upload_date:
+            video_schema["uploadDate"] = video_upload_date
         if profile.get("video_duration"):
             video_schema["duration"] = profile["video_duration"]
         graph.append(video_schema)

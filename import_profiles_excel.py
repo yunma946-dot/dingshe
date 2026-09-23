@@ -349,16 +349,6 @@ def read_profiles(workbook, cities: list[dict], brand_name: str) -> list[dict]:
             if (media_folder / "profile.mp4").exists():
                 if profile["video_duration"] and not re.fullmatch(r"PT(?=\d|\d.*[HMS])(?:\d+H)?(?:\d+M)?(?:\d+S)?", profile["video_duration"]):
                     raise ValueError(f"资料表第 {row} 行视频时长请使用 ISO 8601 格式，例如 PT1M30S。")
-                required_video = [
-                    label for label, text in {
-                        "视频标题": profile["video_title"],
-                        "视频描述": profile["video_description"],
-                        "视频上传日期": profile["video_upload_date"],
-                        "视频时长": profile["video_duration"],
-                    }.items() if not text
-                ]
-                if required_video:
-                    raise ValueError(f"资料表第 {row} 行已有视频，允许收录前必须填写：" + "、".join(required_video))
 
     if not profiles:
         raise ValueError("工作表中没有可更新的资料。")
