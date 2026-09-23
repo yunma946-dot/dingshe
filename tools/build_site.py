@@ -875,20 +875,29 @@ def prepare_responsive_images() -> None:
 
 
 def promote_dist() -> None:
-    backup = ROOT / ".dist-previous"
-    if backup.exists():
-        shutil.rmtree(backup, ignore_errors=True)
-    try:
-        if FINAL_DIST.exists():
-            FINAL_DIST.replace(backup)
-        DIST.replace(FINAL_DIST)
-    except Exception:
-        if not FINAL_DIST.exists() and backup.exists():
-            backup.replace(FINAL_DIST)
-        raise
-    finally:
-        if backup.exists() and FINAL_DIST.exists():
-            shutil.rmtree(backup, ignore_errors=True)
+    FINAL_DIST.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(DIST, FINAL_DIST, dirs_exist_ok=True)
+
+    # Remove files no longer generated, but do not fail merely because Windows
+    # Explorer or a browser is temporarily holding an old file or directory.
+    existing_paths = sorted(
+        FINAL_DIST.rglob("*"),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    )
+    for existing in existing_paths:
+        staged = DIST / existing.relative_to(FINAL_DIST)
+        if staged.exists():
+            continue
+        try:
+            if existing.is_dir() and not existing.is_symlink():
+                existing.rmdir()
+            else:
+                existing.unlink()
+        except OSError:
+            pass
+
+    shutil.rmtree(DIST, ignore_errors=True)
 
 
 def build() -> None:
