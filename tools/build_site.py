@@ -656,16 +656,15 @@ def build_profile(profile: dict) -> str:
         6,
         "YOU MAY ALSO LIKE",
         "随机资料推荐",
-        "每次打开页面都会从不同城市随机展示更多资料入口。",
+        "",
         extra_class="profile-random",
         footer_links=related_footer,
     )
-    review_label = "内容已完成" if profile.get("content_review") == "已完成" else "资料整理中"
     body = f"""
 <div class="wrap breadcrumbs detail-crumb"><a href="{site_href(prefix)}">首页</a><span>/</span><a href="{site_href(prefix, profile['city_slug'])}">{profile['city']}资源库</a><span>/</span><span>{profile['name']}</span></div>
 <section class="detail wrap">
   <div class="gallery" data-gallery><figure class="gallery-main">{media_placeholder(prefix, profile, 1, 'main-photo', eager=True)}<figcaption>{esc(media_caption(profile, 1))}</figcaption></figure><div class="thumb-row">{thumbs}</div></div>
-  <article class="detail-copy"><span class="kicker">{profile['city']} · CURATED PROFILE</span><h1>{profile['name']}</h1><p class="lead">{profile['summary']}</p><div class="facts"><div><span>城市</span><b>{profile['city']}</b></div><div><span>风格</span><b>{profile['tag']}</b></div><div><span>媒体</span><b>{profile_media_label(profile)}</b></div><div><span>状态</span><b>{review_label}</b></div></div>{date_meta}<p>{profile['intro']}</p><a class="back-city-link" href="{site_href(prefix, profile['city_slug'])}">返回{profile['city']}资源库查看全部资料 <span aria-hidden="true">→</span></a><button class="consult detail-consult" data-chat-open type="button"><span class="button-logo" aria-hidden="true"><img src="{prefix}assets/brand-logo.svg" alt=""></span><span class="button-copy"><b>立即咨询</b><small>PRIVATE CONCIERGE</small></span><span class="button-arrow" aria-hidden="true">↗</span></button></article>
+  <article class="detail-copy"><span class="kicker">{profile['city']} · CURATED PROFILE</span><h1>{profile['name']}</h1><p class="lead">{profile['summary']}</p><div class="facts"><div><span>城市</span><b>{profile['city']}</b></div><div><span>风格</span><b>{profile['tag']}</b></div><div><span>媒体</span><b>{profile_media_label(profile)}</b></div></div>{date_meta}<p>{profile['intro']}</p><a class="back-city-link" href="{site_href(prefix, profile['city_slug'])}">返回{profile['city']}资源库查看全部资料 <span aria-hidden="true">→</span></a><button class="consult detail-consult" data-chat-open type="button"><span class="button-logo" aria-hidden="true"><img src="{prefix}assets/brand-logo.svg" alt=""></span><span class="button-copy"><b>立即咨询</b><small>PRIVATE CONCIERGE</small></span><span class="button-arrow" aria-hidden="true">↗</span></button></article>
 </section>
 {video_section}
 <section class="content-section"><div class="wrap narrow"><span class="kicker">PROFILE NOTE</span><h2>{profile['name']}独立介绍</h2>{body_paragraphs}<p>继续浏览<a href="{site_href(prefix, profile['city_slug'])}">{profile['city']}精选资料与城市资源库</a>，或查看下方相关推荐。</p></div></section>

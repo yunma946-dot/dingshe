@@ -98,3 +98,7 @@ body{background:radial-gradient(circle at 8% 4%,rgba(123,30,65,.28),transparent 
 @media(max-width:1050px){.home-random .related-grid,.profile-random .related-grid{grid-template-columns:repeat(2,1fr)}.process-tab{min-height:78px;padding:13px 11px}}
 @media(max-width:760px){.home-process,.home-faq{padding:68px 0}.process-tabs{grid-template-columns:repeat(6,1fr)}.process-tab{grid-column:span 2;min-height:76px}.process-tab:nth-child(4),.process-tab:nth-child(5){grid-column:span 3;border-top:1px solid rgba(207,154,100,.14)}.process-tab:nth-child(3){border-right:0}.process-panels{min-height:180px;padding:25px}.process-panel{padding-left:0}.process-panel>span{position:static;display:block;margin-bottom:8px}.home-faq-item button{grid-template-columns:40px 1fr 31px}.home-faq-answer p{margin-left:49px;margin-right:20px}}
 @media(max-width:430px){.home-random .related-grid,.profile-random .related-grid{grid-template-columns:1fr 1fr}.process-tab b{font-size:.87rem}.process-tab span{font-size:.54rem}.home-faq-item button{font-size:.95rem;grid-template-columns:34px 1fr 29px}.home-faq-answer p{margin-left:43px}}
+
+/* Profile facts use three public fields; review status remains internal. */
+.facts{grid-template-columns:repeat(3,1fr)}
+@media(max-width:760px){.facts{grid-template-columns:1fr 1fr}.facts div:last-child{grid-column:1/-1}}
