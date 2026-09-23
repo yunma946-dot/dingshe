@@ -18,6 +18,18 @@ PAGE_SHEET = "固定页面"
 FOOTER_SHEET = "页脚设置"
 DOMAIN = "https://hqq2.com"
 IMAGE_EXTENSIONS = ("jpg", "jpeg", "png", "webp", "avif")
+AUTO_PROFILE_TEXT = {
+    "SEO描述": ("浏览", "的独立资料、图片说明、内容介绍与相关推荐。"),
+    "正文1": ("以上是", "的照片、资料、无需注册登录即可浏览。"),
+    "图片1 ALT": ("", "主图"),
+    "图片1说明": ("", "资料主图"),
+    "图片2 ALT": ("", "细节图"),
+    "图片2说明": ("", "资料细节"),
+    "图片3 ALT": ("", "展示图"),
+    "图片3说明": ("", "资料展示"),
+    "视频标题": ("", "资料视频"),
+    "视频描述": ("", "相关资料视频"),
+}
 
 PROFILE_HEADERS = [
     "城市", "city_slug", "编号", "slug", "页面名称", "SEO标题", "SEO描述",
@@ -113,6 +125,33 @@ def require_sheets(workbook) -> None:
     missing = [name for name in expected if name not in workbook.sheetnames]
     if missing:
         raise ValueError("工作表缺少分页：" + "、".join(missing))
+
+
+def sync_profile_auto_formulas(workbook) -> bool:
+    from openpyxl.utils import get_column_letter
+
+    sheet = workbook[PROFILE_SHEET]
+    header_row = find_header_row(sheet, {"页面名称", *AUTO_PROFILE_TEXT})
+    columns = column_map(sheet, header_row)
+    name_column = get_column_letter(columns["页面名称"])
+    changed = False
+    for row in range(header_row + 1, sheet.max_row + 1):
+        if not cell_text(sheet.cell(row, columns["页面名称"]).value):
+            continue
+        name_reference = f"${name_column}{row}"
+        for field, (prefix, suffix) in AUTO_PROFILE_TEXT.items():
+            text_parts = [f'"{prefix}"'] if prefix else []
+            text_parts.extend([name_reference, f'"{suffix}"'])
+            formula = f'=IF({name_reference}="","",{"&".join(text_parts)})'
+            cell = sheet.cell(row, columns[field])
+            if cell.value != formula:
+                cell.value = formula
+                changed = True
+    if changed:
+        workbook.calculation.calcMode = "auto"
+        workbook.calculation.fullCalcOnLoad = True
+        workbook.calculation.forceFullCalc = True
+    return changed
 
 
 def read_settings_sheet(workbook, sheet_name: str, expected_fields: set[str]) -> dict[str, str]:
@@ -247,7 +286,7 @@ def read_profiles(workbook, cities: list[dict], brand_name: str) -> list[dict]:
             raise ValueError(f"资料表第 {row} 行页面名称不能为空。")
         summary = value(row, "卡片/顶部简介") or f"{name}独立资料展示页。"
         seo_title = value(row, "SEO标题") or f"{name}｜图片与视频｜{brand_name}"
-        seo_description = value(row, "SEO描述") or summary
+        seo_description = f"浏览{name}的独立资料、图片说明、内容介绍与相关推荐。"
         media_dir = f"photos/{city_slug}-{slug}"
         process_media = value(row, "处理图片") == "是"
         publish_status = value(row, "发布状态")
@@ -265,8 +304,8 @@ def read_profiles(workbook, cities: list[dict], brand_name: str) -> list[dict]:
         if home_featured == "是" and publish_status != "已发布":
             raise ValueError(f"资料表第 {row} 行只有“已发布”资料才能设为首页精选。")
 
-        image_alts = {slot: value(row, f"图片{slot} ALT") for slot in range(1, 4)}
-        image_captions = {slot: value(row, f"图片{slot}说明") for slot in range(1, 4)}
+        image_alts = {1: f"{name}主图", 2: f"{name}细节图", 3: f"{name}展示图"}
+        image_captions = {1: f"{name}资料主图", 2: f"{name}资料细节", 3: f"{name}资料展示"}
         first_published = date_text(sheet.cell(row, columns["首次发布日期"]).value)
         last_updated = date_text(sheet.cell(row, columns["最后更新日期"]).value)
         video_upload_date = date_text(sheet.cell(row, columns["视频上传日期"]).value)
@@ -281,7 +320,7 @@ def read_profiles(workbook, cities: list[dict], brand_name: str) -> list[dict]:
             "intro": value(row, "详情说明"),
             "seo_title": seo_title,
             "seo_description": seo_description,
-            "body_1": value(row, "正文1"),
+            "body_1": f"以上是{name}的照片、资料、无需注册登录即可浏览。",
             "body_2": value(row, "正文2"),
             "body_3": value(row, "正文3"),
             "process_media": process_media,
@@ -297,8 +336,8 @@ def read_profiles(workbook, cities: list[dict], brand_name: str) -> list[dict]:
             "image_2_caption": image_captions[2],
             "image_3_alt": image_alts[3],
             "image_3_caption": image_captions[3],
-            "video_title": value(row, "视频标题"),
-            "video_description": value(row, "视频描述"),
+            "video_title": f"{name}资料视频",
+            "video_description": f"{name}相关资料视频",
             "video_poster": value(row, "视频封面"),
             "video_upload_date": video_upload_date,
             "video_duration": value(row, "视频时长"),
@@ -374,6 +413,11 @@ def read_workbook(workbook_path: Path) -> tuple[list[dict], dict]:
     if not SITE_CONTENT_PATH.exists():
         raise FileNotFoundError("缺少 site_content.json，无法确认整站字段。")
     existing = json.loads(SITE_CONTENT_PATH.read_text(encoding="utf-8"))
+    formula_workbook = load_workbook(workbook_path, data_only=False)
+    require_sheets(formula_workbook)
+    if sync_profile_auto_formulas(formula_workbook):
+        formula_workbook.save(workbook_path)
+
     workbook = load_workbook(workbook_path, data_only=True)
     require_sheets(workbook)
 

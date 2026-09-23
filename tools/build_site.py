@@ -646,7 +646,7 @@ def build_profile(profile: dict) -> str:
     if video_source:
         poster = profile_video_poster(profile)
         video_title = profile.get("video_title") or f"{profile['name']}资料视频"
-        video_description = profile.get("video_description") or f"{profile['name']}相关视频资料。"
+        video_description = profile.get("video_description") or f"{profile['name']}相关资料视频"
         video_section = f'''<section class="video-section"><div class="wrap"><div class="section-head"><div><span class="kicker">PROFILE VIDEO</span><h2>{esc(video_title)}</h2></div><p>{esc(video_description)}</p></div><div class="video-frame"><video controls preload="metadata" poster="{prefix}{esc(poster)}"><source src="{prefix}{esc(video_source)}" type="video/mp4"></video></div></div></section>'''
     related_footer = f'<div class="related-return"><a href="{site_href(prefix, profile["city_slug"])}">查看{esc(profile["city"])}全部资料 <span aria-hidden="true">→</span></a><a href="{site_href(prefix)}">返回顶奢首页 <span aria-hidden="true">→</span></a></div>'
     related_section = random_profile_section(
@@ -682,7 +682,7 @@ def build_profile(profile: dict) -> str:
         video_schema = {
             "@type": "VideoObject",
             "name": profile.get("video_title") or f"{profile['name']}资料视频",
-            "description": profile.get("video_description") or f"{profile['name']}相关视频资料。",
+            "description": profile.get("video_description") or f"{profile['name']}相关资料视频",
             "thumbnailUrl": poster_url,
             "contentUrl": f"{DOMAIN}/{video_source}",
         }
