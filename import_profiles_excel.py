@@ -342,10 +342,6 @@ def read_profiles(workbook, cities: list[dict], brand_name: str) -> list[dict]:
                 raise ValueError(f"资料表第 {row} 行最后更新日期不能早于首次发布日期。")
             if not any((media_folder / f"01.{ext}").exists() for ext in IMAGE_EXTENSIONS):
                 raise ValueError(f"资料表第 {row} 行允许收录前必须添加真实主图 01。")
-            for slot in range(1, 4):
-                if any((media_folder / f"{slot:02d}.{ext}").exists() for ext in IMAGE_EXTENSIONS):
-                    if not image_alts[slot] or not image_captions[slot]:
-                        raise ValueError(f"资料表第 {row} 行图片 {slot} 已存在，必须填写 ALT 和图片说明。")
             if (media_folder / "profile.mp4").exists():
                 if profile["video_duration"] and not re.fullmatch(r"PT(?=\d|\d.*[HMS])(?:\d+H)?(?:\d+M)?(?:\d+S)?", profile["video_duration"]):
                     raise ValueError(f"资料表第 {row} 行视频时长请使用 ISO 8601 格式，例如 PT1M30S。")
