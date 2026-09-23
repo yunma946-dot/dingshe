@@ -13,7 +13,8 @@ from xml.sax.saxutils import escape as xml_escape
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DIST = ROOT / "dist"
+FINAL_DIST = ROOT / "dist"
+DIST = ROOT / ".dist-build"
 MEDIA_SOURCE = ROOT / "photos"
 VERIFICATION_SOURCE = ROOT / "verification"
 SEO_STATE_PATH = ROOT / "seo_state.json"
@@ -802,7 +803,7 @@ def prior_page_state() -> dict[str, dict]:
     if isinstance(state, dict) and isinstance(state.get("pages"), dict):
         return state["pages"]
     previous: dict[str, dict] = {}
-    old_sitemap = DIST / "sitemap.xml"
+    old_sitemap = FINAL_DIST / "sitemap.xml"
     if old_sitemap.exists():
         xml = old_sitemap.read_text(encoding="utf-8")
         for block in re.findall(r"<url>(.*?)</url>", xml, flags=re.S):
@@ -871,6 +872,23 @@ def prepare_responsive_images() -> None:
             source = ROOT / source_path
             for width in (480, 800):
                 optimize_image(source, DIST / profile["media_dir"] / f"{slot:02d}-{width}.webp", width, 82)
+
+
+def promote_dist() -> None:
+    backup = ROOT / ".dist-previous"
+    if backup.exists():
+        shutil.rmtree(backup, ignore_errors=True)
+    try:
+        if FINAL_DIST.exists():
+            FINAL_DIST.replace(backup)
+        DIST.replace(FINAL_DIST)
+    except Exception:
+        if not FINAL_DIST.exists() and backup.exists():
+            backup.replace(FINAL_DIST)
+        raise
+    finally:
+        if backup.exists() and FINAL_DIST.exists():
+            shutil.rmtree(backup, ignore_errors=True)
 
 
 def build() -> None:
@@ -979,7 +997,13 @@ def build() -> None:
     not_found = FIXED_PAGES["not_found"]
     not_found_body = f'<section class="legal-hero"><div class="wrap narrow"><span class="kicker">{esc(not_found["hero_kicker"])}</span><h1>{esc(not_found["hero_title"])}</h1><p>{esc(not_found["hero_description"])}</p><p><a class="text-link" href="index.html">{esc(not_found["button_label"])} →</a></p></div></section>'
     write(DIST / "404.html", page(not_found["seo_title"], not_found["seo_description"], f"{DOMAIN}/404.html", 0, not_found_body, indexable=False))
+    promote_dist()
 
 
 if __name__ == "__main__":
-    build()
+    try:
+        build()
+    except Exception:
+        if DIST.exists():
+            shutil.rmtree(DIST, ignore_errors=True)
+        raise

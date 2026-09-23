@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hqq2.com/sitemap.xml
+Sitemap: https://hqq2.com/image-sitemap.xml

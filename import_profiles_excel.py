@@ -148,9 +148,18 @@ def sync_profile_auto_formulas(workbook) -> bool:
                 cell.value = formula
                 changed = True
     if changed:
-        workbook.calculation.calcMode = "auto"
-        workbook.calculation.fullCalcOnLoad = True
-        workbook.calculation.forceFullCalc = True
+        if workbook.calculation is None:
+            from openpyxl.workbook.properties import CalcProperties
+
+            workbook.calculation = CalcProperties(
+                calcMode="auto",
+                fullCalcOnLoad=True,
+                forceFullCalc=True,
+            )
+        else:
+            workbook.calculation.calcMode = "auto"
+            workbook.calculation.fullCalcOnLoad = True
+            workbook.calculation.forceFullCalc = True
     return changed
 
 
