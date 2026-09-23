@@ -103,12 +103,7 @@ body{background:radial-gradient(circle at 8% 4%,rgba(123,30,65,.28),transparent 
 .facts{grid-template-columns:repeat(3,1fr)}
 @media(max-width:760px){.facts{grid-template-columns:1fr 1fr}.facts div:last-child{grid-column:1/-1}}
 
-/* Keep portrait and landscape videos fully visible and centered. */
-.video-frame{aspect-ratio:auto;max-width:820px;display:grid;place-items:center}
-.video-frame video{display:block;width:100%;height:min(76vh,820px);object-fit:contain;object-position:50% 50%;background:#080b12}
-@media(max-width:760px){.video-frame video{height:min(70vh,620px)}}
-
-/* Mobile header: keep all four primary navigation items visible. */
+/* Mobile direct four-item navigation (safe update 20260924) */
 @media(max-width:760px){
   .nav-shell{
     height:auto;
@@ -175,3 +170,4 @@ body{background:radial-gradient(circle at 8% 4%,rgba(123,30,65,.28),transparent 
   .nav-links .nav-text{font-size:.7rem}
   .nav-chevron{display:none}
 }
+

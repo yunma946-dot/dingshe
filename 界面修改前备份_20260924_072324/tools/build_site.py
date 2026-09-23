@@ -329,7 +329,7 @@ def page(
   <link rel="canonical" href="{esc(canonical)}">
   <meta name="theme-color" content="#080b12">
   <link rel="icon" type="image/svg+xml" href="{prefix}assets/favicon.svg">
-  <link rel="stylesheet" href="{prefix}assets/style.css?v=20260924-safe1">
+  <link rel="stylesheet" href="{prefix}assets/style.css?v=20260923b">
   {analytics}
   {extra_head}
 </head>
@@ -543,6 +543,7 @@ def build_home() -> str:
   <div class="wrap hero-copy"><div class="kicker">{esc(home['hero_kicker'])}</div><h1>{esc(home['hero_title_line1'])}<br><em>{esc(home['hero_title_emphasis'])}</em></h1><p>{esc(home['hero_description'])}</p><div class="hero-stats"><span><b>{len(CITIES)}</b> {esc(home['stat_city_label'])}</span><span><b>{len(PROFILES)}</b> {esc(home['stat_profile_label'])}</span><span><b>{media_count}</b> {esc(home['stat_media_label'])}</span></div></div>
 </section>
 {process_section}
+<section class="section"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(home['city_section_kicker'])}</span><h2>{esc(home['city_section_title'])}</h2></div></div><div class="city-grid">{city_cards}</div></div></section>
 {random_section}
 {faq_section}"""
     schema = json.dumps({
@@ -604,6 +605,8 @@ def build_city(city: dict) -> str:
     updated = f'<time class="content-updated" datetime="{esc(city.get("last_updated", ""))}">最后更新：{esc(city.get("last_updated", ""))}</time>' if city.get("last_updated") else ""
     body = f"""
 <section class="city-hero"><div class="wrap"><div class="breadcrumbs"><a href="{site_href('../')}">{esc(HOME_CONTENT['nav_home_label'])}</a><span>/</span><span>{esc(city['name'])}资源库</span></div><span class="kicker">{esc(city['hero_kicker'])}</span><h1>{esc(city['hero_title'])}</h1><p>{esc(city['intro'])}</p>{updated}</div></section>
+<section class="city-editorial"><div class="wrap city-editorial-grid"><div class="city-copy"><span class="kicker">{esc(city['editorial_kicker'])}</span><h2>{esc(city['editorial_title'])}</h2>{paragraphs}</div><div class="city-highlights">{highlights}</div></div></section>
+{featured_section}
 <section class="section city-all"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(city['all_kicker'])}</span><h2>{esc(city['all_title'])}</h2></div></div><div class="profile-grid">{cards}</div></div></section>
 <section class="city-faq"><div class="wrap faq-grid"><div><span class="kicker">{esc(city['faq_kicker'])}</span><h2>{esc(city['faq_title'])}</h2><p>{esc(city['faq_description'])}</p></div><div class="faq-list">{faqs}</div></div></section>
 <section class="city-crosslinks"><div class="wrap"><span class="kicker">{esc(city['more_kicker'])}</span><h2>{esc(city['more_title'])}</h2><div>{other_cities}</div></div></section>"""
