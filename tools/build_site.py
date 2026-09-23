@@ -329,7 +329,7 @@ def page(
   <link rel="canonical" href="{esc(canonical)}">
   <meta name="theme-color" content="#080b12">
   <link rel="icon" type="image/svg+xml" href="{prefix}assets/favicon.svg">
-  <link rel="stylesheet" href="{prefix}assets/style.css?v=20260923b">
+  <link rel="stylesheet" href="{prefix}assets/style.css?v=20260923c">
   {analytics}
   {extra_head}
 </head>
@@ -500,7 +500,7 @@ def build_home() -> str:
         f'<article class="process-panel{" active" if index == 1 else ""}" role="tabpanel" id="process-panel-{index}" aria-labelledby="process-tab-{index}" data-process-panel="{index}"{" hidden" if index != 1 else ""}><span>STEP {index:02d}</span><h3>{esc(label)}</h3><p>{esc(text)}</p></article>'
         for index, (label, text) in enumerate(process_items, start=1)
     )
-    process_section = f'''<section class="home-process"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(home.get('process_kicker', 'CONSULTATION PROCESS'))}</span><h2>{esc(home.get('process_title', '预约咨询流程'))}</h2></div></div><div class="process-shell" data-process-tabs><div class="process-tabs" role="tablist" aria-label="预约咨询流程">{process_tabs}</div><div class="process-panels">{process_panels}</div></div></div></section>'''
+    process_section = f'''<section class="home-process"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(home.get('process_kicker', 'CONSULTATION PROCESS'))}</span><h2>{esc(home.get('process_title', '预约咨询流程'))}</h2></div><p>按步骤了解咨询方式，具体信息请以官方客服的最新确认为准。</p></div><div class="process-shell" data-process-tabs><div class="process-tabs" role="tablist" aria-label="预约咨询流程">{process_tabs}</div><div class="process-panels">{process_panels}</div></div></div></section>'''
     try:
         random_count = int(home.get("random_count", 8))
     except (TypeError, ValueError):
@@ -573,31 +573,14 @@ def build_city(city: dict) -> str:
     subset = [p for p in PROFILES if p["city_slug"] == city["slug"]]
     indexable_subset = [p for p in subset if is_indexable(p)]
     cards = "".join(card("../", p) for p in subset)
-    highlight_items = [
-        (city[f"highlight_{index}_title"], city[f"highlight_{index}_text"])
-        for index in range(1, 4)
-    ]
     faq_items = [
         (city[f"faq_{index}_question"], city[f"faq_{index}_answer"])
         for index in range(1, 4)
     ]
-    highlights = "".join(
-        f'<article><h3>{esc(title)}</h3><p>{esc(text)}</p></article>'
-        for title, text in highlight_items
-    )
-    paragraphs = "".join(f"<p>{esc(text)}</p>" for text in [city["paragraph_1"], city["paragraph_2"]] if str(text).strip())
     faqs = "".join(
         f'<details><summary>{esc(question)}</summary><p>{esc(answer)}</p></details>'
         for question, answer in faq_items
     )
-    featured_pool = [profile for profile in indexable_subset if profile.get("home_featured") == "是"] or indexable_subset[:3]
-    featured_links = "".join(
-        f'<a href="{site_href("../", profile["path"])}"><span>精选推荐</span><b>{esc(profile["name"])}</b><small>{esc(profile["tag"])}风格 · 查看独立详情</small></a>'
-        for profile in featured_pool[:3]
-    )
-    featured_section = ""
-    if featured_links:
-        featured_section = f'''<section class="city-featured"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(city['featured_kicker'])}</span><h2>{esc(city['featured_title'])}</h2></div><p>{esc(city['featured_description'])}</p></div><div class="city-featured-links">{featured_links}</div></div></section>'''
     other_cities = "".join(
         f'<a href="{site_href("../", other["slug"])}">浏览{other["name"]}资源库 <span aria-hidden="true">→</span></a>'
         for other in CITIES if other["slug"] != city["slug"]
@@ -605,8 +588,6 @@ def build_city(city: dict) -> str:
     updated = f'<time class="content-updated" datetime="{esc(city.get("last_updated", ""))}">最后更新：{esc(city.get("last_updated", ""))}</time>' if city.get("last_updated") else ""
     body = f"""
 <section class="city-hero"><div class="wrap"><div class="breadcrumbs"><a href="{site_href('../')}">{esc(HOME_CONTENT['nav_home_label'])}</a><span>/</span><span>{esc(city['name'])}资源库</span></div><span class="kicker">{esc(city['hero_kicker'])}</span><h1>{esc(city['hero_title'])}</h1><p>{esc(city['intro'])}</p>{updated}</div></section>
-<section class="city-editorial"><div class="wrap city-editorial-grid"><div class="city-copy"><span class="kicker">{esc(city['editorial_kicker'])}</span><h2>{esc(city['editorial_title'])}</h2>{paragraphs}</div><div class="city-highlights">{highlights}</div></div></section>
-{featured_section}
 <section class="section city-all"><div class="wrap"><div class="section-head"><div><span class="kicker">{esc(city['all_kicker'])}</span><h2>{esc(city['all_title'])}</h2></div></div><div class="profile-grid">{cards}</div></div></section>
 <section class="city-faq"><div class="wrap faq-grid"><div><span class="kicker">{esc(city['faq_kicker'])}</span><h2>{esc(city['faq_title'])}</h2><p>{esc(city['faq_description'])}</p></div><div class="faq-list">{faqs}</div></div></section>
 <section class="city-crosslinks"><div class="wrap"><span class="kicker">{esc(city['more_kicker'])}</span><h2>{esc(city['more_title'])}</h2><div>{other_cities}</div></div></section>"""
