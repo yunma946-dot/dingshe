@@ -301,8 +301,7 @@ def footer(prefix: str) -> str:
   <span class="chat-emblem" aria-hidden="true"><img src="{prefix}assets/brand-logo.svg" alt="" width="46" height="46"></span>
   <span class="chat-label"><b>{esc(FOOTER_CONTENT['chat_title'])}</b><small>{esc(FOOTER_CONTENT['chat_subtitle'])}</small></span>
 </button>
-<script src="https://chat.hqvip.xyz/widget.js?site=site1&v=20260923a"></script>
-<script src="{prefix}assets/site.js?v=20260924-chat1" defer></script>"""
+<script src="{prefix}assets/site.js?v=20260923b" defer></script>"""
 
 
 def page(
