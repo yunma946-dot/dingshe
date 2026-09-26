@@ -296,8 +296,13 @@ def footer(prefix: str) -> str:
   </div>
   <div class="wrap footer-bottom"><span>{esc(FOOTER_CONTENT['copyright'])}</span></div>
 </footer>
-<script src="https://chat.hqvip.xyz/widget.js?site=site1&v=20260926c"></script>
-<script src="{prefix}assets/site.js?v=20260926c" defer></script>"""
+<button class="floating-chat" data-chat-open type="button" aria-label="{esc(FOOTER_CONTENT['chat_aria_label'])}">
+  <span class="chat-orbit" aria-hidden="true"></span>
+  <span class="chat-emblem" aria-hidden="true"><img src="{prefix}assets/brand-logo.svg" alt="" width="46" height="46"></span>
+  <span class="chat-label"><b>{esc(FOOTER_CONTENT['chat_title'])}</b><small>{esc(FOOTER_CONTENT['chat_subtitle'])}</small></span>
+</button>
+<script src="https://chat.hqvip.xyz/widget.js?site=site1&v=20260923a"></script>
+<script src="{prefix}assets/site.js?v=20260924-chat1" defer></script>"""
 
 
 def page(
@@ -325,7 +330,7 @@ def page(
   <link rel="canonical" href="{esc(canonical)}">
   <meta name="theme-color" content="#080b12">
   <link rel="icon" type="image/svg+xml" href="{prefix}assets/favicon.svg">
-  <link rel="stylesheet" href="{prefix}assets/style.css?v=20260926c">
+  <link rel="stylesheet" href="{prefix}assets/style.css?v=20260924-safe1">
   {analytics}
   {extra_head}
 </head>

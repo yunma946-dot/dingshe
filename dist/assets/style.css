@@ -171,3 +171,12 @@ body{background:radial-gradient(circle at 8% 4%,rgba(123,30,65,.28),transparent 
   .nav-chevron{display:none}
 }
 
+/* HQ_SERVER_CHAT_ONLY_CLEANUP_START */
+/* The live chat launcher and theme come only from chat.hqvip.xyz/widget.js. */
+.floating-chat {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* HQ_SERVER_CHAT_ONLY_CLEANUP_END */

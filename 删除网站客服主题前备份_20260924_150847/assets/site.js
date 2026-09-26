@@ -213,45 +213,175 @@
     });
   });
 
+  let nativeChatLauncher = null;
+  let chatScriptPromise = null;
+  const chatScriptUrl = 'https://chat.hqvip.xyz/widget.js?site=site1&v=20260923a';
+
+  function ensureChatLoaded() {
+    if (window.HQChatWidget) return Promise.resolve();
+    if (chatScriptPromise) return chatScriptPromise;
+    chatScriptPromise = new Promise(function (resolve, reject) {
+      const script = document.createElement('script');
+      script.src = chatScriptUrl;
+      script.async = true;
+      script.dataset.color = '#a43f63';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    return chatScriptPromise;
+  }
+  const nativeLauncherSelectors = [
+    '[data-hq-chat-launcher]',
+    '.hq-chat-launcher',
+    '#hq-chat-launcher',
+    '[class*="chat-launcher"]',
+    '[id*="chat-launcher"]',
+    '[class*="chat-widget-button"]',
+    '[id*="chat-widget-button"]',
+    'button[aria-label*="在线客服"]',
+    'button[aria-label*="打开客服"]',
+    'button[title*="在线客服"]'
+  ];
+
+  function isOurChatControl(element) {
+    return !element || element.closest('[data-chat-open]') || element.closest('.floating-chat');
+  }
+
+  function isCornerControl(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    let current = element;
+    for (let depth = 0; current && depth < 4; depth += 1, current = current.parentElement) {
+      const style = window.getComputedStyle(current);
+      const rect = current.getBoundingClientRect();
+      const nearCorner = rect.width > 0 && rect.height > 0 && rect.width <= 150 && rect.height <= 150 && rect.right >= window.innerWidth - 170 && rect.bottom >= window.innerHeight - 170;
+      if ((style.position === 'fixed' || style.position === 'sticky') && nearCorner) return true;
+    }
+    return false;
+  }
+
+  function isNativeLauncher(element) {
+    if (!(element instanceof HTMLElement) || isOurChatControl(element)) return false;
+    const identity = [
+      element.id,
+      typeof element.className === 'string' ? element.className : '',
+      element.getAttribute('aria-label') || '',
+      element.getAttribute('title') || '',
+      element.getAttribute('data-testid') || '',
+      element.textContent || ''
+    ].join(' ').toLowerCase();
+    if (/关闭|close|minimi[sz]e|收起/.test(identity)) return false;
+    if (/chat[-_ ]?launcher|chat[-_ ]?widget[-_ ]?button|hq[-_ ]?chat[-_ ]?launcher/.test(identity)) return true;
+    return /(在线客服|打开客服|开始咨询|customer service|open chat|kefu)/.test(identity) && isCornerControl(element);
+  }
+
+  function hideNativeLauncher(element) {
+    if (!isNativeLauncher(element)) return;
+    nativeChatLauncher = element;
+    element.classList.add('hq-native-launcher-hidden');
+    element.style.setProperty('display', 'none', 'important');
+    element.style.setProperty('visibility', 'hidden', 'important');
+    element.style.setProperty('pointer-events', 'none', 'important');
+    element.setAttribute('aria-hidden', 'true');
+    element.setAttribute('tabindex', '-1');
+  }
+
+  function applyDingsheChatTheme(root) {
+    if (!root || typeof root.querySelector !== 'function' || !root.querySelector('.hq-panel')) return;
+    if (root.querySelector('#dingshe-chat-widget-theme')) return;
+    const theme = document.createElement('style');
+    theme.id = 'dingshe-chat-widget-theme';
+    theme.textContent = `
+      .hq-panel{
+        background:#0d070b!important;
+        border:1px solid rgba(239,190,137,.52)!important;
+        border-radius:10px!important;
+        box-shadow:0 28px 85px rgba(0,0,0,.68),0 0 0 1px rgba(164,63,99,.12),0 0 38px rgba(164,63,99,.16)!important;
+      }
+      .hq-panel::before{
+        content:"";
+        position:absolute;
+        z-index:2;
+        left:0;
+        right:0;
+        top:0;
+        height:3px;
+        background:linear-gradient(90deg,#7d2948,#d19b67,#7d2948);
+        pointer-events:none;
+      }
+      .hq-frame{background:#0d070b!important}
+      @media(max-width:600px){.hq-panel{border-radius:9px!important}}
+    `;
+    root.appendChild(theme);
+  }
+
+  function scanForNativeLauncher(root) {
+    if (!root) return;
+    if (root instanceof HTMLElement) {
+      hideNativeLauncher(root);
+      if (root.shadowRoot) scanForNativeLauncher(root.shadowRoot);
+    }
+    if (typeof root.querySelectorAll !== 'function') return;
+    applyDingsheChatTheme(root);
+    root.querySelectorAll(nativeLauncherSelectors.join(',')).forEach(hideNativeLauncher);
+    root.querySelectorAll('button, [role="button"]').forEach(function (element) {
+      hideNativeLauncher(element);
+      if (element.shadowRoot) scanForNativeLauncher(element.shadowRoot);
+    });
+    root.querySelectorAll('*').forEach(function (element) {
+      if (element.shadowRoot) scanForNativeLauncher(element.shadowRoot);
+    });
+  }
+
+  scanForNativeLauncher(document);
+  const chatObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      mutation.addedNodes.forEach(function (node) {
+        if (node.nodeType === 1 || node.nodeType === 11) scanForNativeLauncher(node);
+      });
+    });
+  });
+  chatObserver.observe(document.documentElement, { childList: true, subtree: true });
+
+  function dispatchChatOpen() {
+    window.dispatchEvent(new CustomEvent('hq-chat-open'));
+    window.postMessage({ type: 'hq-chat-open' }, '*');
+    document.querySelectorAll('iframe').forEach(function (frame) {
+      if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'hq-chat-open' }, '*');
+    });
+  }
+
+  function openChat() {
+    let attempts = 0;
+    function attempt() {
+      scanForNativeLauncher(document);
+      if (window.HQChatWidget && typeof window.HQChatWidget.toggle === 'function') {
+        window.HQChatWidget.toggle();
+        return;
+      }
+      if (nativeChatLauncher && nativeChatLauncher.isConnected) {
+        nativeChatLauncher.click();
+        return;
+      }
+      attempts += 1;
+      if (attempts < 8) {
+        window.setTimeout(attempt, 180);
+      } else {
+        dispatchChatOpen();
+      }
+    }
+    attempt();
+  }
 
   document.querySelectorAll('[data-chat-open]').forEach(function (button) {
     button.addEventListener('click', function () {
-      if (window.HQChatWidget && typeof window.HQChatWidget.toggle === 'function') {
-        window.HQChatWidget.toggle();
-      } else {
-        window.dispatchEvent(new CustomEvent('hq-chat-open'));
-      }
+      ensureChatLoaded().then(openChat).catch(function () {
+        button.setAttribute('aria-label', '在线客服暂时无法加载');
+      });
     });
   });
+
+  window.addEventListener('load', function () {
+    window.setTimeout(function () { ensureChatLoaded().catch(function () {}); }, 6000);
+  }, { once: true });
 })();
-
-/* HQ_SERVER_CHAT_ONLY_RUNTIME_CLEANUP_START */
-(() => {
-  const cleanupLegacyWebsiteChat = () => {
-    document.querySelectorAll('.floating-chat').forEach((node) => {
-      node.hidden = true;
-      node.style.setProperty('display', 'none', 'important');
-      node.style.setProperty('pointer-events', 'none', 'important');
-    });
-
-    const host = document.getElementById('hq-chat-widget-host');
-    const legacyTheme = host && host.shadowRoot
-      ? host.shadowRoot.getElementById('dingshe-chat-widget-theme')
-      : null;
-    if (legacyTheme) legacyTheme.remove();
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', cleanupLegacyWebsiteChat, { once: true });
-  } else {
-    cleanupLegacyWebsiteChat();
-  }
-
-  let attempts = 0;
-  const timer = window.setInterval(() => {
-    cleanupLegacyWebsiteChat();
-    attempts += 1;
-    if (attempts >= 40) window.clearInterval(timer);
-  }, 250);
-})();
-/* HQ_SERVER_CHAT_ONLY_RUNTIME_CLEANUP_END */
