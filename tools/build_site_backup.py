@@ -536,7 +536,7 @@ def build_home() -> str:
 <section class="hero home-hero">
   <picture class="hero-media"><source type="image/webp" srcset="assets/hero-city-640.webp 640w, assets/hero-city-1200.webp 1200w, assets/hero-city-1680.webp 1680w" sizes="100vw"><img class="hero-image" src="assets/hero-city.png" alt="{esc(home['hero_image_alt'])}" width="1680" height="945" loading="eager" decoding="async" fetchpriority="high"></picture>
   <div class="hero-shade"></div>
-  <div class="wrap hero-copy"><div class="kicker">{esc(home['hero_kicker'])}</div><h1>{esc(home['hero_title_line1'])}<br><em>{esc(home['hero_title_emphasis'])}</em></h1><p>{esc(home['hero_description'])}</p></div>
+  <div class="wrap hero-copy"><div class="kicker">{esc(home['hero_kicker'])}</div><h1>{esc(home['hero_title_line1'])}<br><em>{esc(home['hero_title_emphasis'])}</em></h1><p>{esc(home['hero_description'])}</p><div class="hero-stats"><span><b>{len(CITIES)}</b> {esc(home['stat_city_label'])}</span><span><b>{len(PROFILES)}</b> {esc(home['stat_profile_label'])}</span><span><b>{media_count}</b> {esc(home['stat_media_label'])}</span></div></div>
 </section>
 {process_section}
 {random_section}
