@@ -263,7 +263,7 @@ def nav(prefix: str) -> str:
 <header class="site-header">
   <div class="wrap nav-shell">
     <a class="brand" href="{home_link}" aria-label="返回{BRAND}首页">
-      <img class="brand-logo" src="{prefix}assets/brand-logo.svg" alt="" width="54" height="54">
+      <img class="brand-logo" src="{prefix}assets/brand-logo.svg" alt="顶奢模特资源库" width="54" height="54">
       <span class="brand-wordmark"><strong><i>顶</i><i>奢</i></strong><small>{BRAND_EN}</small></span>
     </a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav"><span class="menu-lines" aria-hidden="true"><i></i><i></i></span><span>导航</span></button>
