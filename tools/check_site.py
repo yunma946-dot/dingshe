@@ -157,8 +157,8 @@ def main() -> None:
         if not (DIST / required).exists():
             errors.append(f"缺少发布文件：{required}")
     home_html = (DIST / "index.html").read_text(encoding="utf-8")
-    if "G-Y6RVRSV2Z2" not in home_html:
-        errors.append("首页缺少 GA4 代码：G-Y6RVRSV2Z2")
+    if "G-T14GCNR5FL" not in home_html:
+        errors.append("首页缺少 GA4 代码：G-T14GCNR5FL")
     for required_marker, label in (
         ('data-process-tabs', '预约咨询流程'),
         ('data-random-profiles', '随机资料推荐'),

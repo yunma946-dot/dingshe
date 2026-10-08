@@ -25,7 +25,7 @@ BRAND = "顶奢"
 BRAND_EN = "DINGSHE"
 CONTACT_EMAIL = "dingshe1@outlook.com"
 CONTACT_ADDRESS = "123 Fashion Avenue, Suite 400, New York, NY 10001, USA"
-GA4_ID = "G-Y6RVRSV2Z2"
+GA4_ID = "G-T14GCNR5FL"
 
 CITIES = [
     {
